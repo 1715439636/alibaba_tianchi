@@ -221,7 +221,7 @@ test_user_weekiter['bought_tag']=np.array(bought_t)
 test_user_weekiter['cart_tag']=np.array(tag_t)
 test_user_weekiter['label_tag']=np.array(label_t)
 
-
+pd.merge
 net1.fit(training[['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']],training[['label_tag']])
 
 
