@@ -44,9 +44,9 @@ net1 = NeuralNet(
                 ],
         # layer parameters:
         input_shape=(None,8),
-        hidden_num_units=0, # number of units in 'hidden' layer
+        hidden_num_units=100, # number of units in 'hidden' layer
         output_nonlinearity=lasagne.nonlinearities.softmax,
-        output_num_units=2,  # 10 target values for the digits 0, 1, 2, ..., 9
+        output_num_units=1,  # 1 target values for buy or not
 
         # optimization method:
         update=nesterov_momentum,
@@ -57,7 +57,7 @@ net1 = NeuralNet(
         verbose=1,
         )
 # setting the trainning_set
-for i_days in range(30):
+for i_days in range(31):
 	start_date=datetime(2014,12,18)
 
 	vali_date=start_date-timedelta(i_days)
@@ -65,7 +65,7 @@ for i_days in range(30):
 	train_vali_date=train_user_df[train_user_weekiter['time']==vali_date]
 	
 	#each training batch  (in a week)
-	train_user_weekiter=train_user_df[(vali_date-train_user_df['time']).days<=7 and (vali_date-train_user_df['time']).days >0]
+	train_user_weekiter=train_user_df[(vali_date-train_user_df['time']).days<=7][(vali_date-train_user_df['time']).days >0]
 
 	#item_cat=np.unique(train_user_weekiter['item_category'])
 	#usr_cat=
@@ -97,10 +97,10 @@ for i_days in range(30):
 			label_i=0
 		
 		#action=train_user_weekiter.ix['i_ter','behavior_type']
-		view_num_i=np.shape(train_user_weekiter[train_user_weekiter['item_category']==item and train_user_weekiter['behavior_type']==1])[0]
-		mark_num_i=np.shape(train_user_weekiter[train_user_weekiter['item_category']==item and train_user_weekiter['behavior_type']==2])[0]
-		cart_num_i=np.shape(train_user_weekiter[train_user_weekiter['item_category']==item and train_user_weekiter['behavior_type']==3])[0]
-		bought_num_i=np.shape(train_user_weekiter[train_user_weekiter['item_category']==item and train_user_weekiter['behavior_type']==4])[0]
+		view_num_i=np.shape(train_user_weekiter[train_user_weekiter['item_category']==item][train_user_weekiter['behavior_type']==1])[0]
+		mark_num_i=np.shape(train_user_weekiter[train_user_weekiter['item_category']==item][train_user_weekiter['behavior_type']==2])[0]
+		cart_num_i=np.shape(train_user_weekiter[train_user_weekiter['item_category']==item][train_user_weekiter['behavior_type']==3])[0]
+		bought_num_i=np.shape(train_user_weekiter[train_user_weekiter['item_category']==item][train_user_weekiter['behavior_type']==4])[0]
 
 		view_num.append(view_num_i)
 		cart_num.append(cart_num_i)
@@ -123,7 +123,7 @@ for i_days in range(30):
 			mark.append(0)
 			cart.append(1)
 			bought.append(0)		
-		else action==4:
+		else:
 			view.append(0)
 			mark.append(0)
 			cart.append(0)
@@ -178,10 +178,10 @@ for i_ter in test_user_weekiter.index:
 		#label_i=0
 	
 	#t_action=test_user_weekiter.ix['i_ter','behavior_type']
-	view_num_i=np.shape(test_user_weekiter[train_user_weekiter['item_category']==item and test_user_weekiter['behavior_type']==1])[0]
-	mark_num_i=np.shape(test_user_weekiter[train_user_weekiter['item_category']==item and test_user_weekiter['behavior_type']==2])[0]
-	cart_num_i=np.shape(test_user_weekiter[train_user_weekiter['item_category']==item and test_user_weekiter['behavior_type']==3])[0]
-	bought_num_i=np.shape(test_user_weekiter[train_user_weekiter['item_category']==item and test_user_weekiter['behavior_type']==4])[0]
+	view_num_i=np.shape(test_user_weekiter[train_user_weekiter['item_category']==item][ test_user_weekiter['behavior_type']==1])[0]
+	mark_num_i=np.shape(test_user_weekiter[train_user_weekiter['item_category']==item][ test_user_weekiter['behavior_type']==2])[0]
+	cart_num_i=np.shape(test_user_weekiter[train_user_weekiter['item_category']==item][ test_user_weekiter['behavior_type']==3])[0]
+	bought_num_i=np.shape(test_user_weekiter[train_user_weekiter['item_category']==item][test_user_weekiter['behavior_type']==4])[0]
 
 	view_nu.append(view_num_i)
 	cart_nu.append(cart_num_i)
@@ -204,7 +204,7 @@ for i_ter in test_user_weekiter.index:
 		mark_t.append(0)
 		cart_t.append(1)
 		bought_t.append(0)		
-	else action==4:
+	else :
 		view_t.append(0)
 		mark_t.append(0)
 		cart_t.append(0)
@@ -221,7 +221,23 @@ test_user_weekiter['bought_tag']=np.array(bought_t)
 test_user_weekiter['cart_tag']=np.array(tag_t)
 test_user_weekiter['label_tag']=np.array(label_t)
 
-pd.merge
+
 net1.fit(training[['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']],training[['label_tag']])
+
+test_user_weekiter.index=test_user_weekiter['item_id']
+train_item_df.index=train_item_df['item_id']
+test_item=pd.merge(train_item_df,test_user_weekiter,on=['item_id','item_category'],how='left')
+test_item_pre=test_item[test_item['user_id']!=NaN]
+BUY_predict=net1.predict(test_item_pre)
+test_item_pre['predict']=BUY_predict
+print ---------------------------predict_length
+print np.shape(test_item_pre)[0]
+test_item_pre=test_item_pre.sort_index(by=['predict'],ascending=False)[0:200]
+
+submission = pd.DataFrame({
+        "user_id": test_item_pre['user_id'],
+        "item_id": test_item_pre['item_id']
+    })
+submission.to_csv('tianchi_mobile_recommendation_predict.csv', index=False)
 
 
