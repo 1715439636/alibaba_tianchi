@@ -195,7 +195,7 @@ for weekiter in range(1,7):
 	if weekiter==1:
 		test_user_weekiter=train_user_df[train_user_df['time']==vali_date-timedelta(weekiter)]
 	else :
-		test_user_weekiter=pd.concat([test_user_weekiter,test_user_df[test_user_df['time']==vali_date-timedelta(weekiter)]])
+		test_user_weekiter=pd.concat([test_user_weekiter,train_user_df[train_user_df['time']==vali_date-timedelta(weekiter)]])
 view_nu=[]
 mark_nu=[]
 cart_nu=[]
@@ -272,7 +272,7 @@ for i_ter in test_user_weekiter.index:
 test_user_weekiter['cat_view']=np.array(view_nu)
 test_user_weekiter['cat_cart']=np.array(cart_nu)
 test_user_weekiter['cat_mark']=np.array(mark_nu)
-test_user_weekiter['cat_bought']=np.array(view_nu)
+test_user_weekiter['cat_bought']=np.array(bought_nu)
 
 test_user_weekiter['view_tag']=np.array(view_t)
 test_user_weekiter['mark_tag']=np.array(mark_t)
