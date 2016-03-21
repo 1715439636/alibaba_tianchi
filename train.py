@@ -287,7 +287,7 @@ ds.setField('target',training[['label_tag']])
 
 print ("----------------------start training----------------")
 trainer = BackpropTrainer(net, ds)
-trainer.trainEpochs(10)
+trainer.trainEpochs(5,momentum=0.1)
 
 out=SupervisedDataSet(8,1)
 
@@ -295,8 +295,7 @@ out=SupervisedDataSet(8,1)
 #test_user_weekiter.index=test_user_weekiter['item_id']
 #train_item_df.index=train_item_df['item_id']
 print ("----------------------make test data----------------")
-test_item=pd.merge(train_item_df,test_user_weekiter,on=['item_id','item_category'],how='left')
-test_item_pre=test_item[test_item['user_id']!=NaN]
+test_item=pd.merge(train_item_df,test_user_weekiter,on=['item_id','item_category'],how='inner')
 
 out.setField('input',test_item_pre[['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']])
 
