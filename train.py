@@ -284,30 +284,30 @@ test_user_weekiter['cart_tag']=np.array(cart_t)
 #net1.fit(training[['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']],training[['label_tag']])
 ds.setField('input',training[['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']])
 ds.setField('target',training[['label_tag']])
+print ("----------------------make test data----------------")
+out=SupervisedDataSet(8,1)
+
+test_item_pre=pd.merge(train_item_df,test_user_weekiter,on=['item_id','item_category'],how='inner')
+out.setField('input',test_item_pre[['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']])
+out.setField('target',np.zeros(np.shape(test_item_pre)[0],1))
+
+print ("---------------------------predict_length----------------------")
+print np.shape(test_item_pre)[0]
 
 print ("----------------------start training----------------")
 trainer = BackpropTrainer(net, ds)
-trainer.trainEpochs(5,momentum=0.1)
-
-out=SupervisedDataSet(8,1)
+trainer.train()
 
 
 #test_user_weekiter.index=test_user_weekiter['item_id']
 #train_item_df.index=train_item_df['item_id']
-print ("----------------------make test data----------------")
-test_item=pd.merge(train_item_df,test_user_weekiter,on=['item_id','item_category'],how='inner')
-
-out.setField('input',test_item_pre[['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']])
-
-out.setField('target',np.zeros(np.shape(test_item_pre)[0],1))
 
 print ("----------------------predict----------------")
 out=net.activateOnDataset(out)
 
 #BUY_predict=net1.predict(test_item_pre)
 test_item_pre['predict']=out
-print ("---------------------------predict_length----------------------")
-print np.shape(test_item_pre)[0]
+
 
 test_item_pre=test_item_pre.sort_index(by=['predict'],ascending=False)[0:7000]
 print ("----------------------write to file----------------")
