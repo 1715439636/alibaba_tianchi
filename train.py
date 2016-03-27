@@ -288,8 +288,11 @@ print ("----------------------make test data----------------")
 out=SupervisedDataSet(8,1)
 
 test_item_pre=pd.merge(train_item_df,test_user_weekiter,on=['item_id','item_category'],how='inner')
-out.setField('input',test_item_pre[['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']])
-out.setField('target',np.zeros(np.shape(test_item_pre)[0],1))
+#out.setField('input',test_item_pre[['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']])
+#out.setField('target',np.zeros(np.shape(test_item_pre)[0],1))
+for i_ter in test_item_pre.index:
+	out.addSample(test_item_pre.ix[i_ter,['cat_view','cat_cart','cat_mark','cat_bought','view_tag','mark_tag','bought_tag','cart_tag']],0)
+
 
 print ("---------------------------predict_length----------------------")
 print np.shape(test_item_pre)[0]
@@ -303,10 +306,10 @@ trainer.train()
 #train_item_df.index=train_item_df['item_id']
 
 print ("----------------------predict----------------")
-out=net.activateOnDataset(out)
+pre=net.activateOnDataset(out)
 
 #BUY_predict=net1.predict(test_item_pre)
-test_item_pre['predict']=out
+test_item_pre['predict']=pre
 
 
 test_item_pre=test_item_pre.sort_index(by=['predict'],ascending=False)[0:7000]
