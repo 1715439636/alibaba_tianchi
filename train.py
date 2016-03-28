@@ -193,9 +193,9 @@ test_date=datetime(2014,12,19)
 print ("preprocessing the testing_data")
 for weekiter in range(1,7):
 	if weekiter==1:
-		test_user_weekiter=train_user_df[train_user_df['time']==vali_date-timedelta(weekiter)]
+		test_user_weekiter=train_user_df[train_user_df['time']==test_date-timedelta(weekiter)]
 	else :
-		test_user_weekiter=pd.concat([test_user_weekiter,train_user_df[train_user_df['time']==vali_date-timedelta(weekiter)]])
+		test_user_weekiter=pd.concat([test_user_weekiter,train_user_df[train_user_df['time']==test_date-timedelta(weekiter)]])
 view_nu=[]
 mark_nu=[]
 cart_nu=[]
