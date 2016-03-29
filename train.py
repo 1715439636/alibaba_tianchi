@@ -299,7 +299,7 @@ print np.shape(test_item_pre)[0]
 
 print ("----------------------start training----------------")
 trainer = BackpropTrainer(net, ds)
-trainer.train()
+trainer.trainUntilConvergence(maxEpochs=5)
 
 
 #test_user_weekiter.index=test_user_weekiter['item_id']
@@ -319,5 +319,8 @@ submission = pd.DataFrame({
         "item_id": test_item_pre['item_id']
     })
 submission.to_csv('tianchi_mobile_recommendation_predict.csv', index=False)
-
+see_pre = pd.DataFrame({
+        "pre": test_item_pre['predict']
+    })
+see_pre.to_csv('see_pre.csv', index=False)
 
